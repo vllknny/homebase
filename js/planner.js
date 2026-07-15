@@ -85,6 +85,8 @@ const Planner = (() => {
     form.addEventListener('submit', handleSubmit);
     list.addEventListener('click', handleListClick);
 
+    // planner background toggle removed
+
     render();
   }
 

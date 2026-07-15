@@ -167,6 +167,8 @@
     });
   }
 
+  /* layout mode removed */
+
   async function init() {
     clockEl = document.getElementById('clock');
     dateEl = document.getElementById('dateLine');
@@ -198,6 +200,8 @@
     wireSettingsInputs();
     wireGlobalModalDismiss();
     searchInput.focus();
+
+    // layout toggle removed
 
     Sky.init(settings.sky);
     await Links.init();

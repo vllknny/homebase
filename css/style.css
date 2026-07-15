@@ -48,12 +48,13 @@ body {
   flex-direction: column;
 }
 
-body[data-sky="dawn"] { --accent: #F2B18A; --accent-ink: #24130A; }
-body[data-sky="morning"] { --accent: #FFCC6B; --accent-ink: #2D1C04; }
-body[data-sky="midday"] { --accent: #A9E3F4; --accent-ink: #07263A; }
-body[data-sky="dusk"] { --accent: #F4A06F; --accent-ink: #2B1208; }
-body[data-sky="evening"] { --accent: #D59BEF; --accent-ink: #22122F; }
-body[data-sky="night"] { --accent: #EFA958; --accent-ink: #2b1a08; }
+/* Neutralize colored accents: use gr%y/white accents per theme */
+body[data-sky="dawn"] { --accent: #E6E6E6; --accent-ink: #141414; }
+body[data-sky="morning"] { --accent: #E6E6E6; --accent-ink: #141414; }
+body[data-sky="midday"] { --accent: #E6E6E6; --accent-ink: #141414; }
+body[data-sky="dusk"] { --accent: #E6E6E6; --accent-ink: #141414; }
+body[data-sky="evening"] { --accent: #E6E6E6; --accent-ink: #141414; }
+body[data-sky="night"] { --accent: #E6E6E6; --accent-ink: #141414; }
 body[data-sky="monochrome"] {
   --text: #F5F5F5;
   --text-dim: rgba(245, 245, 245, .94);
@@ -185,7 +186,7 @@ a { color: inherit; }
 .sky-scene[data-sky="night"] {
   background: linear-gradient(160deg, #0A0B1A, #131A33 55%, #1E2A4A 135%);
 }
-.sky-scene[data-sky="night"] .b1 { background: radial-gradient(circle, #2DD4BF, transparent 70%); }
+.sky-scene[data-sky="night"] .b1 { background: radial-gradient(circle, #D9D9D9, transparent 70%); }
 .sky-scene[data-sky="night"] .b2 { background: radial-gradient(circle, #4C5FD5, transparent 70%); }
 .sky-scene[data-sky="night"] .b3 { background: radial-gradient(circle, #6B4FA8, transparent 70%); }
 
@@ -212,7 +213,7 @@ a { color: inherit; }
   box-shadow: var(--shadow-soft);
   transition: background .2s ease, color .2s ease, transform .2s ease, box-shadow .2s ease;
 }
-.icon-btn:hover { background: var(--surface-strong); color: var(--accent); transform: translateY(-1px); }
+.icon-btn:hover { background: var(--surface-strong); color: var(--text-dim); transform: translateY(-1px); }
 .icon-btn.small { width: 28px; height: 28px; }
 .icon-btn.small:hover { transform: none; background: var(--surface-hover); }
 
@@ -436,7 +437,8 @@ a { color: inherit; }
 .link-tile:hover .del-btn { opacity: 1; }
 
 .link-tile.add-tile { background: transparent; border: 1px dashed var(--surface-border); color: var(--text-faint); cursor: pointer; }
-.link-tile.add-tile:hover { color: var(--accent); border-color: var(--accent); background: rgba(239, 169, 88, .06); }
+.link-tile.add-tile:hover { color: var(--text-dim); border-color: var(--surface-border); background: rgba(255, 255, 255, .03); }
+.link-tile.add-tile:hover .fallback-icon { border-color: var(--surface-border); color: var(--text-dim); }
 .link-tile.add-tile .fallback-icon { background: transparent; border: 1px dashed var(--text-faint); color: var(--text-faint); font-size: 1.1rem; }
 .link-tile.add-tile:hover .fallback-icon { border-color: var(--accent); color: var(--accent); }
 
@@ -463,22 +465,26 @@ a { color: inherit; }
 .inline-form input:focus { border-color: var(--accent); }
 
 .add-btn {
-  width: 38px; flex-shrink: 0;
-  border-radius: var(--radius-sm);
+  width: 38px; height: 38px; flex-shrink: 0;
+  border-radius: 50%;
   border: none;
-  background: var(--accent);
-  color: var(--accent-ink);
-  font-size: 1.2rem;
+  background: var(--surface);
+  color: #ffffff;
+  font-size: 1.1rem;
   line-height: 1;
-  transition: filter .15s ease;
+  display: inline-flex; align-items: center; justify-content: center;
+  padding: 0;
+  box-shadow: var(--shadow-soft);
+  transition: transform .12s ease, background .12s ease;
 }
-.add-btn:hover { filter: brightness(1.08); }
+.add-btn:hover { transform: translateY(-1px); background: var(--surface-strong); }
 
 .task-list { display: flex; flex-direction: column; gap: 1px; overflow: hidden; flex: 1; max-height: 220px; }
 .card-planner.is-empty .task-list { flex: 0; }
 .card-planner.is-empty .empty-note { display: flex; flex: 1; align-items: center; justify-content: center; margin-top: 0; }
 .task-item { display: flex; align-items: center; gap: 10px; padding: 9px 4px; border-radius: 9px; transition: background .15s ease; }
 .task-item:hover { background: rgba(255, 255, 255, .04); }
+.task-item { box-shadow: 0 2px 8px rgba(0,0,0,.12); }
 .task-item .chk {
   width: 18px; height: 18px; border-radius: 6px;
   border: 1.5px solid var(--surface-border);
@@ -752,10 +758,12 @@ a { color: inherit; }
 .day-events li {
   display: flex; justify-content: space-between; align-items: center; gap: 8px;
   padding: 8px 10px;
-  background: rgba(255, 255, 255, .05);
+  background: rgba(255, 255, 255, .03);
   border-radius: 9px;
   font-size: .85rem;
   color: var(--text);
+  border: 1px solid rgba(255,255,255,.02);
+  box-shadow: 0 2px 8px rgba(0,0,0,.10);
 }
 .day-events li button { background: none; border: none; color: var(--text-faint); font-size: 1rem; }
 .day-events li button:hover { color: var(--danger); }
@@ -764,10 +772,13 @@ a { color: inherit; }
 #dayEventForm { flex-direction: row; gap: 8px; }
 #dayEventForm input {
   flex: 1; padding: 10px 12px; border-radius: 10px;
-  border: 1px solid var(--surface-border);
-  background: rgba(255, 255, 255, .05);
+  border: 1px solid rgba(255,255,255,.06);
+  background: rgba(255, 255, 255, .02);
   color: var(--text); font-size: .88rem; outline: none;
 }
+
+/* White background modifier for planner */
+.card .drag-handle { display: none; }
 
 /* ============================================================
    RESPONSIVE
@@ -779,3 +790,46 @@ a { color: inherit; }
   .corner-btn { top: 14px; right: 14px; }
   .links-grid { grid-template-columns: repeat(4, 1fr); }
 }
+
+/* ============================================================
+   GRAIN / NOISE OVERLAY
+   - `.grain` provides a subtle film-grain overlay
+   - `.grain-strong` provides a heavier, more pronounced noise
+   Usage: add `grain` or `grain grain-strong` to the <body> element
+   ============================================================ */
+
+.grain::after, .grain-strong::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9999;
+  mix-blend-mode: overlay;
+  background-repeat: repeat;
+}
+
+.grain::after {
+  background-image:
+    radial-gradient(rgba(0,0,0,0.04) 1px, transparent 1px),
+    radial-gradient(rgba(255,255,255,0.03) 1px, transparent 1px);
+  background-size: 4px 4px, 5px 5px;
+  opacity: 0.28;
+  filter: contrast(1.05) saturate(0.98) blur(.2px);
+}
+
+.grain-strong::after {
+  background-image:
+    radial-gradient(rgba(0,0,0,0.10) 1px, transparent 1px),
+    radial-gradient(rgba(255,255,255,0.07) 1px, transparent 1px),
+    linear-gradient(120deg, rgba(200,220,255,0.02), rgba(255,200,200,0.02));
+  background-size: 2px 2px, 3px 3px, 100% 100%;
+  opacity: 0.88;
+  filter: contrast(1.15) saturate(0.98) blur(.35px);
+  mix-blend-mode: normal;
+  background-blend-mode: overlay, overlay, normal;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .grain::after, .grain-strong::after { opacity: 0.18; filter: none; }
+}
+
