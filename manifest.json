@@ -3,7 +3,7 @@
   "name": "Homebase — New Tab Dashboard",
   "short_name": "Homebase",
   "version": "1.0.0",
-  "description": "Replace new tab with your homebase: a living clock, planner, calendar, quick links, and notes.",
+  "description": "Replace new tab with your homebase.",
   "chrome_url_overrides": {
     "newtab": "newtab.html"
   },

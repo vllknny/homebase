@@ -9,6 +9,7 @@
   const SEARCH_ENGINES = {
     google: 'https://www.google.com/search?q=',
     duckduckgo: 'https://duckduckgo.com/?q=',
+    brave: 'https://search.brave.com/search?q=',
     bing: 'https://www.bing.com/search?q=',
     startpage: 'https://www.startpage.com/sp/search?query=',
   };
@@ -41,7 +42,7 @@
       hours = String(hours).padStart(2, '0');
     }
 
-    clockEl.textContent = `${hours}:${minutes}${suffix}`;
+    clockEl.innerHTML = `${hours}:${minutes}${settings.clock === '12' ? `<span class="clock-suffix">${suffix}</span>` : ''}`;
     dateEl.textContent = now.toLocaleDateString('default', { weekday: 'long', month: 'long', day: 'numeric' });
 
     const word = greetingWord(now.getHours());
