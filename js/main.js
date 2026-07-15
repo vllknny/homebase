@@ -14,6 +14,8 @@
     palette: {
       surface: '#FFFFFF',
       text: '#F8F6F9',
+      accent: '#f7f1ea',
+      accentInk: '#2b1a08',
     },
   };
 
@@ -31,6 +33,8 @@
   let settingsBtn, settingsModal, closeSettingsBtn;
   let nameInput, skySelect, clockSelect, engineSelect, weekStartSelect;
   let grainSelect;
+  let paletteSurfaceInput, paletteTextInput, paletteAccentInput, paletteAccentInkInput;
+  let palettePresetsEl, previewDotLarge, previewStrip;
 
   function greetingWord(hour) {
     if (hour < 5) return 'Good night';
@@ -123,6 +127,11 @@
     engineSelect.value = settings.engine;
     weekStartSelect.value = settings.weekStart;
     if (grainSelect) grainSelect.value = settings.grain || 'off';
+    const p = settings.palette || DEFAULT_SETTINGS.palette;
+    if (paletteSurfaceInput) paletteSurfaceInput.value = p.surface || DEFAULT_SETTINGS.palette.surface;
+    if (paletteTextInput) paletteTextInput.value = p.text || DEFAULT_SETTINGS.palette.text;
+    if (paletteAccentInput) paletteAccentInput.value = p.accent || DEFAULT_SETTINGS.palette.accent;
+    if (paletteAccentInkInput) paletteAccentInkInput.value = p.accentInk || DEFAULT_SETTINGS.palette.accentInk;
   }
 
   function openSettings() {
@@ -163,6 +172,27 @@
       applyGrainSetting();
     });
 
+    if (paletteSurfaceInput) paletteSurfaceInput.addEventListener('input', () => {
+      settings.palette = settings.palette || {};
+      settings.palette.surface = paletteSurfaceInput.value;
+      persistSettings(); applyPalette(); updatePalettePreview();
+    });
+    if (paletteTextInput) paletteTextInput.addEventListener('input', () => {
+      settings.palette = settings.palette || {};
+      settings.palette.text = paletteTextInput.value;
+      persistSettings(); applyPalette(); updatePalettePreview();
+    });
+    if (paletteAccentInput) paletteAccentInput.addEventListener('input', () => {
+      settings.palette = settings.palette || {};
+      settings.palette.accent = paletteAccentInput.value;
+      persistSettings(); applyPalette(); updatePalettePreview();
+    });
+    if (paletteAccentInkInput) paletteAccentInkInput.addEventListener('input', () => {
+      settings.palette = settings.palette || {};
+      settings.palette.accentInk = paletteAccentInkInput.value;
+      persistSettings(); applyPalette(); updatePalettePreview();
+    });
+
   }
 
   function wireGlobalModalDismiss() {
@@ -194,12 +224,21 @@
     engineSelect = document.getElementById('settingEngine');
     weekStartSelect = document.getElementById('settingWeekStart');
     grainSelect = document.getElementById('settingGrain');
+    paletteSurfaceInput = document.getElementById('paletteSurface');
+    paletteTextInput = document.getElementById('paletteText');
+    paletteAccentInput = document.getElementById('paletteAccent');
+    paletteAccentInkInput = document.getElementById('paletteAccentInk');
+    palettePresetsEl = document.getElementById('palettePresets');
+    previewDotLarge = document.getElementById('previewDotLarge');
+    previewStrip = document.getElementById('previewStrip');
 
     const stored = await Store.get(SETTINGS_KEY, null);
     settings = stored ? { ...DEFAULT_SETTINGS, ...stored } : { ...DEFAULT_SETTINGS };
 
     populateSettingsForm();
     applyPalette();
+    renderPalettePresets();
+    updatePalettePreview();
     applyGrainSetting();
     updateClock();
     setInterval(updateClock, 10000);
@@ -225,6 +264,39 @@
     const g = settings.grain || 'off';
     if (g === 'subtle') document.body.classList.add('grain');
     if (g === 'strong') document.body.classList.add('grain-strong');
+  }
+
+  function renderPalettePresets() {
+    if (!palettePresetsEl) return;
+    const presets = [
+      { name: 'Neutral', surface: '#FFFFFF', text: '#F8F6F9', accent: '#D9D9D9', accentInk: '#141414' },
+      { name: 'Warm', surface: '#FFF8F2', text: '#241b14', accent: '#F2C6A0', accentInk: '#2b1508' },
+      { name: 'Cool', surface: '#F6FBFF', text: '#0f1724', accent: '#A7E0F0', accentInk: '#062931' },
+      { name: 'Night', surface: '#0F1220', text: '#EAE9F0', accent: '#D9D9D9', accentInk: '#141414' },
+    ];
+    palettePresetsEl.innerHTML = '';
+    presets.forEach((p) => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'preset-swatch';
+      btn.title = p.name;
+      btn.style.background = `linear-gradient(90deg, ${p.surface}, ${p.accent})`;
+      btn.addEventListener('click', () => {
+        settings.palette = { ...p };
+        persistSettings();
+        populateSettingsForm();
+        applyPalette();
+        updatePalettePreview();
+      });
+      palettePresetsEl.appendChild(btn);
+    });
+  }
+
+  function updatePalettePreview() {
+    if (!previewDotLarge || !previewStrip) return;
+    const p = settings.palette || DEFAULT_SETTINGS.palette;
+    previewDotLarge.style.background = p.surface || DEFAULT_SETTINGS.palette.surface;
+    previewStrip.style.background = `linear-gradient(90deg, ${p.accent || DEFAULT_SETTINGS.palette.accent}, ${p.surface || DEFAULT_SETTINGS.palette.surface})`;
   }
 
   document.addEventListener('DOMContentLoaded', init);

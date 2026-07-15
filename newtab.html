@@ -144,6 +144,45 @@
         </select>
       </label>
 
+      <div class="palette-editor" id="paletteEditor">
+        <div class="palette-head">
+          <div>
+            <span>Theme palette</span>
+            <div class="palette-description">Pick a preset or customize the core palette used across the UI.</div>
+          </div>
+        </div>
+
+        <div class="palette-preview">
+          <div class="preview-grid">
+            <div class="preview-dot large" id="previewDotLarge"></div>
+            <div style="flex:1">
+              <div class="preview-strip" id="previewStrip"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="palette-presets" id="palettePresets"></div>
+
+        <div class="palette-grid">
+          <div class="field compact color-control">
+            <input type="color" id="paletteSurface" value="#ffffff">
+            <div class="hex-value">Surface</div>
+          </div>
+          <div class="field compact color-control">
+            <input type="color" id="paletteText" value="#F8F6F9">
+            <div class="hex-value">Text</div>
+          </div>
+          <div class="field compact color-control">
+            <input type="color" id="paletteAccent" value="#F7F1EA">
+            <div class="hex-value">Accent</div>
+          </div>
+          <div class="field compact color-control">
+            <input type="color" id="paletteAccentInk" value="#2b1a08">
+            <div class="hex-value">Accent ink</div>
+          </div>
+        </div>
+      </div>
+
       <div class="modal-actions">
         <button type="button" class="btn-primary" id="closeSettings">Done</button>
       </div>
