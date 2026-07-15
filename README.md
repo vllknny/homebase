@@ -1,37 +1,34 @@
-# Homebase — a new tab dashboard
+# Homebase — Your new tab is your home.
 
-Replaces your browser's new tab page with a personal homebase: a clock and
-greeting that shift with a living, time-of-day sky, a search bar, quick
-links to your favorite sites, a planner, a small calendar, and a notes
-scratchpad. Everything is saved locally in your browser — nothing is sent
-to any server.
+Replaces your browser's new tab page with a personal homebase: includes some useful widgets + a pleasent Anthropic-like noise gradient look.
 
-Works in **Chrome, Edge, Brave, Opera**, and other Chromium-based browsers
-(Manifest V3). See the note at the bottom for Firefox.
+Works in Chromium-based browsers (Manifest V3). 
+See the note at the bottom for Firefox.
 
-## Install it (takes about a minute)
+## Installation
 
 1. Unzip this folder somewhere you'll keep it (don't delete it after
    installing — Chrome loads the extension from these files each time).
 2. Open `chrome://extensions` in your browser.
 3. Turn on **Developer mode** (top-right toggle).
 4. Click **Load unpacked**, and select the unzipped `homebase` folder.
-5. Open a new tab. That's it.
+5. Open a new tab.
 
 If you ever want to remove it, go back to `chrome://extensions` and click
 **Remove** on the Homebase card — your browser's default new tab comes
-back immediately.
+back immediately. You can also temporarily turn it off via your browser's
+extension seetings.
 
 ## What's included
 
 - **Living sky** — the background gradient moves through six palettes
   (dawn, morning, midday, dusk, evening, night) that crossfade as your day
-  goes on. You can lock it to one mood instead of following the clock, in
-  Settings.
+  goes on. You can lock it to one mood if you'd like in Settings!
 - **Search** — type a query to search the web, or type a URL to go
-  straight there. Pick your search engine in Settings.
-- **Quick links** — a small grid of your favorite sites. Click **Add** to
-  add one; hover a tile to remove it.
+  straight there. Pick your search engine in Settings. (or just use your
+  normal search engine, bar will be removeable soon!)
+- **Quick links** — a small grid of your favorite sites. Click **Add** or
+  drag a link over the panel to add one; hover a tile to remove it.
 - **Planner** — a simple task list: add, check off, delete.
 - **Calendar** — a month view. Click any day to add or remove notes/events
   for that date.
@@ -39,9 +36,9 @@ back immediately.
 - **Settings** (gear icon, top right) — your name for the greeting, sky
   mode, 12/24-hour clock, search engine, and which day the week starts on.
 
-## Customizing it
+## Development | Customization
 
-Everything is plain HTML/CSS/JS, no build step:
+Everything is plain HTML/CSS/JS, no building required:
 
 - `css/style.css` — colors, the six sky palettes (search for `--accent` or
   `.sky-scene[data-sky=`), fonts, spacing.
