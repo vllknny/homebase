@@ -10,6 +10,7 @@
     clock: '12',
     engine: 'google',
     weekStart: '0',
+    grain: 'off',
     palette: {
       surface: '#FFFFFF',
       text: '#F8F6F9',
@@ -29,6 +30,7 @@
   let clockEl, dateEl, greetingEl, searchForm, searchInput;
   let settingsBtn, settingsModal, closeSettingsBtn;
   let nameInput, skySelect, clockSelect, engineSelect, weekStartSelect;
+  let grainSelect;
 
   function greetingWord(hour) {
     if (hour < 5) return 'Good night';
@@ -120,6 +122,7 @@
     clockSelect.value = settings.clock;
     engineSelect.value = settings.engine;
     weekStartSelect.value = settings.weekStart;
+    if (grainSelect) grainSelect.value = settings.grain || 'off';
   }
 
   function openSettings() {
@@ -154,6 +157,11 @@
       persistSettings();
       Calendar.setWeekStart(settings.weekStart);
     });
+    grainSelect.addEventListener('change', () => {
+      settings.grain = grainSelect.value;
+      persistSettings();
+      applyGrainSetting();
+    });
 
   }
 
@@ -185,12 +193,14 @@
     clockSelect = document.getElementById('settingClock');
     engineSelect = document.getElementById('settingEngine');
     weekStartSelect = document.getElementById('settingWeekStart');
+    grainSelect = document.getElementById('settingGrain');
 
     const stored = await Store.get(SETTINGS_KEY, null);
     settings = stored ? { ...DEFAULT_SETTINGS, ...stored } : { ...DEFAULT_SETTINGS };
 
     populateSettingsForm();
     applyPalette();
+    applyGrainSetting();
     updateClock();
     setInterval(updateClock, 10000);
 
@@ -208,6 +218,13 @@
     await Planner.init();
     await Calendar.init(settings.weekStart);
     await Notes.init();
+  }
+
+  function applyGrainSetting() {
+    document.body.classList.remove('grain', 'grain-strong');
+    const g = settings.grain || 'off';
+    if (g === 'subtle') document.body.classList.add('grain');
+    if (g === 'strong') document.body.classList.add('grain-strong');
   }
 
   document.addEventListener('DOMContentLoaded', init);
