@@ -25,7 +25,9 @@ extension seetings.
 
 - **Living sky** — the background gradient moves through six palettes
   (dawn, morning, midday, dusk, evening, night) that crossfade as your day
-  goes on. You can lock it to one mood if you'd like in Settings!
+  goes on. You can lock it to one mood if you'd like in Settings! A slow
+  wave motion drifts along the horizon too — toggle it and dial its
+  intensity in Settings.
 - **Search** — type a query to search the web, or type a URL to go
   straight there. Pick your search engine in Settings. (or just use your
   normal search engine, bar will be removeable soon!)
@@ -36,7 +38,8 @@ extension seetings.
   for that date.
 - **Notes** — a scratchpad that saves automatically as you type.
 - **Settings** (gear icon, top right) — your name for the greeting, sky
-  mode, 12/24-hour clock, search engine, and which day the week starts on.
+  mode, 12/24-hour clock, search engine, which day the week starts on, a
+  noise-overlay slider, and wave motion (on/off plus an intensity slider).
 
 ## Development | Customization
 

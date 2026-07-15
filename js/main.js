@@ -10,7 +10,8 @@
     clock: '12',
     engine: 'google',
     weekStart: '0',
-    grain: 'off',
+    grain: 0,
+    wave: { enabled: true, intensity: 45 },
     palette: {
       surface: '#FFFFFF',
       text: '#F8F6F9',
@@ -27,14 +28,155 @@
     startpage: 'https://www.startpage.com/sp/search?query=',
   };
 
+  const SKY_OPTIONS = [
+    { value: 'auto', label: 'Auto — follow the time of day' },
+    { value: 'dawn', label: 'Dawn' },
+    { value: 'morning', label: 'Morning' },
+    { value: 'midday', label: 'Midday' },
+    { value: 'dusk', label: 'Dusk' },
+    { value: 'evening', label: 'Evening' },
+    { value: 'night', label: 'Night' },
+  ];
+  const CLOCK_OPTIONS = [
+    { value: '12', label: '12-hour' },
+    { value: '24', label: '24-hour' },
+  ];
+  const ENGINE_OPTIONS = [
+    { value: 'google', label: 'Google' },
+    { value: 'duckduckgo', label: 'DuckDuckGo' },
+    { value: 'bing', label: 'Bing' },
+    { value: 'startpage', label: 'Startpage' },
+  ];
+  const WEEK_START_OPTIONS = [
+    { value: '0', label: 'Sunday' },
+    { value: '1', label: 'Monday' },
+  ];
+
   let settings = { ...DEFAULT_SETTINGS };
 
   let clockEl, dateEl, greetingEl, searchForm, searchInput;
   let settingsBtn, settingsModal, closeSettingsBtn;
-  let nameInput, skySelect, clockSelect, engineSelect, weekStartSelect;
-  let grainSelect;
+  let nameInput;
+  let skyDropdown, clockDropdown, engineDropdown, weekStartDropdown;
+  let grainInput, grainValueEl;
+  let waveContainer, waveEnabledInput, waveIntensityInput, waveIntensityValueEl, waveIntensityField;
   let paletteSurfaceInput, paletteTextInput, paletteAccentInput, paletteAccentInkInput;
   let palettePresetsEl, previewDotLarge, previewStrip;
+
+  /**
+   * A small custom dropdown ("listbox") that replaces bare native
+   * <select> elements so it can be styled to match the rest of the UI.
+   * Mounts into the element with id `id`, which should be an empty
+   * `.dropdown` container.
+   */
+  function createDropdown({ id, options, value, onChange }) {
+    const root = document.getElementById(id);
+    if (!root) return null;
+    root.classList.add('dropdown');
+    root.innerHTML = `
+      <button type="button" class="dropdown-trigger" aria-haspopup="listbox" aria-expanded="false">
+        <span class="dropdown-value"></span>
+        <svg class="dropdown-chevron" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="dropdown-panel" role="listbox" tabindex="-1"></div>
+    `;
+    const trigger = root.querySelector('.dropdown-trigger');
+    const valueEl = root.querySelector('.dropdown-value');
+    const panel = root.querySelector('.dropdown-panel');
+
+    let current = value;
+    let focusIndex = 0;
+
+    function setLabel() {
+      const found = options.find((o) => o.value === current);
+      valueEl.textContent = found ? found.label : '';
+    }
+
+    function renderOptions() {
+      panel.innerHTML = '';
+      options.forEach((opt) => {
+        const item = document.createElement('div');
+        item.className = 'dropdown-option' + (opt.value === current ? ' selected' : '');
+        item.setAttribute('role', 'option');
+        item.setAttribute('aria-selected', opt.value === current ? 'true' : 'false');
+        const label = document.createElement('span');
+        label.textContent = opt.label;
+        const check = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        check.setAttribute('class', 'check');
+        check.setAttribute('viewBox', '0 0 24 24');
+        check.setAttribute('width', '14');
+        check.setAttribute('height', '14');
+        check.setAttribute('fill', 'none');
+        check.setAttribute('stroke', 'currentColor');
+        check.setAttribute('stroke-width', '2.4');
+        check.setAttribute('stroke-linecap', 'round');
+        check.setAttribute('stroke-linejoin', 'round');
+        check.innerHTML = '<polyline points="20 6 9 17 4 12"/>';
+        item.appendChild(label);
+        item.appendChild(check);
+        item.addEventListener('click', () => { select(opt.value); close(); trigger.focus(); });
+        panel.appendChild(item);
+      });
+    }
+
+    function select(val) {
+      if (val === current) return;
+      current = val;
+      setLabel();
+      renderOptions();
+      onChange(val);
+    }
+
+    function focusItem(i) {
+      const items = panel.querySelectorAll('.dropdown-option');
+      focusIndex = Math.max(0, Math.min(items.length - 1, i));
+      items.forEach((it, idx) => it.classList.toggle('active-focus', idx === focusIndex));
+      items[focusIndex] && items[focusIndex].scrollIntoView({ block: 'nearest' });
+    }
+
+    function open() {
+      document.querySelectorAll('.dropdown.open').forEach((d) => { if (d !== root) d.classList.remove('open'); });
+      root.classList.add('open');
+      trigger.setAttribute('aria-expanded', 'true');
+      focusItem(Math.max(0, options.findIndex((o) => o.value === current)));
+    }
+    function close() {
+      root.classList.remove('open');
+      trigger.setAttribute('aria-expanded', 'false');
+    }
+    function toggle() { root.classList.contains('open') ? close() : open(); }
+
+    trigger.addEventListener('click', toggle);
+    trigger.addEventListener('keydown', (e) => {
+      const isOpen = root.classList.contains('open');
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        if (!isOpen) { open(); } else { focusItem(focusIndex + 1); }
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        if (!isOpen) { open(); } else { focusItem(focusIndex - 1); }
+      } else if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        if (isOpen) { select(options[focusIndex].value); close(); } else { open(); }
+      } else if (e.key === 'Escape') {
+        if (isOpen) { e.preventDefault(); close(); }
+      } else if (e.key === 'Tab') {
+        close();
+      }
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!root.contains(e.target)) close();
+    });
+
+    renderOptions();
+    setLabel();
+
+    return {
+      setValue(val) { current = val; setLabel(); renderOptions(); },
+      getValue() { return current; },
+    };
+  }
 
   function greetingWord(hour) {
     if (hour < 5) return 'Good night';
@@ -122,11 +264,19 @@
 
   function populateSettingsForm() {
     nameInput.value = settings.name;
-    skySelect.value = settings.sky;
-    clockSelect.value = settings.clock;
-    engineSelect.value = settings.engine;
-    weekStartSelect.value = settings.weekStart;
-    if (grainSelect) grainSelect.value = settings.grain || 'off';
+    if (skyDropdown) skyDropdown.setValue(settings.sky);
+    if (clockDropdown) clockDropdown.setValue(settings.clock);
+    if (engineDropdown) engineDropdown.setValue(settings.engine);
+    if (weekStartDropdown) weekStartDropdown.setValue(settings.weekStart);
+    if (grainInput) {
+      grainInput.value = settings.grain || 0;
+      if (grainValueEl) grainValueEl.textContent = `${grainInput.value}%`;
+    }
+    if (waveEnabledInput) waveEnabledInput.checked = !!(settings.wave && settings.wave.enabled);
+    if (waveIntensityInput) {
+      waveIntensityInput.value = (settings.wave && settings.wave.intensity) || 0;
+      if (waveIntensityValueEl) waveIntensityValueEl.textContent = `${waveIntensityInput.value}%`;
+    }
     const p = settings.palette || DEFAULT_SETTINGS.palette;
     if (paletteSurfaceInput) paletteSurfaceInput.value = p.surface || DEFAULT_SETTINGS.palette.surface;
     if (paletteTextInput) paletteTextInput.value = p.text || DEFAULT_SETTINGS.palette.text;
@@ -147,30 +297,67 @@
       persistSettings();
       updateClock();
     });
-    skySelect.addEventListener('change', () => {
-      settings.sky = skySelect.value;
-      persistSettings();
-      Sky.setOverride(settings.sky);
+
+    skyDropdown = createDropdown({
+      id: 'settingSky',
+      options: SKY_OPTIONS,
+      value: settings.sky,
+      onChange: (val) => {
+        settings.sky = val;
+        persistSettings();
+        Sky.setOverride(settings.sky);
+      },
     });
-    clockSelect.addEventListener('change', () => {
-      settings.clock = clockSelect.value;
-      persistSettings();
-      updateClock();
+    clockDropdown = createDropdown({
+      id: 'settingClock',
+      options: CLOCK_OPTIONS,
+      value: settings.clock,
+      onChange: (val) => {
+        settings.clock = val;
+        persistSettings();
+        updateClock();
+      },
     });
-    engineSelect.addEventListener('change', () => {
-      settings.engine = engineSelect.value;
-      persistSettings();
+    engineDropdown = createDropdown({
+      id: 'settingEngine',
+      options: ENGINE_OPTIONS,
+      value: settings.engine,
+      onChange: (val) => {
+        settings.engine = val;
+        persistSettings();
+      },
     });
-    weekStartSelect.addEventListener('change', () => {
-      settings.weekStart = weekStartSelect.value;
-      persistSettings();
-      Calendar.setWeekStart(settings.weekStart);
+    weekStartDropdown = createDropdown({
+      id: 'settingWeekStart',
+      options: WEEK_START_OPTIONS,
+      value: settings.weekStart,
+      onChange: (val) => {
+        settings.weekStart = val;
+        persistSettings();
+        Calendar.setWeekStart(settings.weekStart);
+      },
     });
-    grainSelect.addEventListener('change', () => {
-      settings.grain = grainSelect.value;
-      persistSettings();
+
+    grainInput.addEventListener('input', () => {
+      settings.grain = Number(grainInput.value);
+      if (grainValueEl) grainValueEl.textContent = `${grainInput.value}%`;
       applyGrainSetting();
     });
+    grainInput.addEventListener('change', persistSettings);
+
+    waveEnabledInput.addEventListener('change', () => {
+      settings.wave = settings.wave || { ...DEFAULT_SETTINGS.wave };
+      settings.wave.enabled = waveEnabledInput.checked;
+      persistSettings();
+      applyWaveSetting();
+    });
+    waveIntensityInput.addEventListener('input', () => {
+      settings.wave = settings.wave || { ...DEFAULT_SETTINGS.wave };
+      settings.wave.intensity = Number(waveIntensityInput.value);
+      if (waveIntensityValueEl) waveIntensityValueEl.textContent = `${waveIntensityInput.value}%`;
+      applyWaveSetting();
+    });
+    waveIntensityInput.addEventListener('change', persistSettings);
 
     if (paletteSurfaceInput) paletteSurfaceInput.addEventListener('input', () => {
       settings.palette = settings.palette || {};
@@ -219,11 +406,13 @@
     closeSettingsBtn = document.getElementById('closeSettings');
 
     nameInput = document.getElementById('settingName');
-    skySelect = document.getElementById('settingSky');
-    clockSelect = document.getElementById('settingClock');
-    engineSelect = document.getElementById('settingEngine');
-    weekStartSelect = document.getElementById('settingWeekStart');
-    grainSelect = document.getElementById('settingGrain');
+    grainInput = document.getElementById('settingGrain');
+    grainValueEl = document.getElementById('settingGrainValue');
+    waveContainer = document.getElementById('skyWaves');
+    waveEnabledInput = document.getElementById('settingWaveEnabled');
+    waveIntensityInput = document.getElementById('settingWaveIntensity');
+    waveIntensityValueEl = document.getElementById('settingWaveIntensityValue');
+    waveIntensityField = document.getElementById('waveIntensityField');
     paletteSurfaceInput = document.getElementById('paletteSurface');
     paletteTextInput = document.getElementById('paletteText');
     paletteAccentInput = document.getElementById('paletteAccent');
@@ -235,18 +424,31 @@
     const stored = await Store.get(SETTINGS_KEY, null);
     settings = stored ? { ...DEFAULT_SETTINGS, ...stored } : { ...DEFAULT_SETTINGS };
 
+    // Migrate legacy settings shapes (grain used to be off/subtle/strong;
+    // wave motion didn't exist yet).
+    if (typeof settings.grain !== 'number') {
+      const legacyGrain = { off: 0, subtle: 40, strong: 85 };
+      settings.grain = legacyGrain[settings.grain] ?? 0;
+    }
+    if (!settings.wave || typeof settings.wave !== 'object') {
+      settings.wave = { ...DEFAULT_SETTINGS.wave };
+    } else {
+      settings.wave = { ...DEFAULT_SETTINGS.wave, ...settings.wave };
+    }
+
+    wireSettingsInputs();
     populateSettingsForm();
     applyPalette();
     renderPalettePresets();
     updatePalettePreview();
     applyGrainSetting();
+    applyWaveSetting();
     updateClock();
     setInterval(updateClock, 10000);
 
     searchForm.addEventListener('submit', handleSearch);
     settingsBtn.addEventListener('click', openSettings);
     closeSettingsBtn.addEventListener('click', closeSettings);
-    wireSettingsInputs();
     wireGlobalModalDismiss();
     searchInput.focus();
 
@@ -260,10 +462,25 @@
   }
 
   function applyGrainSetting() {
-    document.body.classList.remove('grain', 'grain-strong');
-    const g = settings.grain || 'off';
-    if (g === 'subtle') document.body.classList.add('grain');
-    if (g === 'strong') document.body.classList.add('grain-strong');
+    document.body.classList.add('grain');
+    const pct = Math.max(0, Math.min(100, Number(settings.grain) || 0));
+    document.body.style.setProperty('--grain-opacity', (pct / 100 * 0.85).toFixed(3));
+  }
+
+  function applyWaveSetting() {
+    const wave = settings.wave || DEFAULT_SETTINGS.wave;
+    const enabled = !!wave.enabled;
+    if (waveContainer) waveContainer.style.display = enabled ? '' : 'none';
+    if (waveIntensityField) waveIntensityField.style.opacity = enabled ? '1' : '.4';
+    if (waveIntensityInput) waveIntensityInput.disabled = !enabled;
+
+    const pct = Math.max(0, Math.min(100, Number(wave.intensity) || 0));
+    const opacity = (0.12 + (pct / 100) * 0.55).toFixed(3);
+    const speedBack = (34 - (pct / 100) * 22).toFixed(1) + 's';
+    const speedFront = (22 - (pct / 100) * 14).toFixed(1) + 's';
+    document.body.style.setProperty('--wave-opacity', enabled ? opacity : '0');
+    document.body.style.setProperty('--wave-speed-back', speedBack);
+    document.body.style.setProperty('--wave-speed-front', speedFront);
   }
 
   function renderPalettePresets() {

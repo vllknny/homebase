@@ -20,6 +20,14 @@
       <div class="blob b2"></div>
       <div class="blob b3"></div>
     </div>
+    <div class="sky-waves" id="skyWaves">
+      <svg class="wave-layer wave-back" viewBox="0 0 3200 220" preserveAspectRatio="none" aria-hidden="true">
+        <path d="M0,110 C100,70 300,70 400,110 C500,150 700,150 800,110 C900,70 1100,70 1200,110 C1300,150 1500,150 1600,110 C1700,70 1900,70 2000,110 C2100,150 2300,150 2400,110 C2500,70 2700,70 2800,110 C2900,150 3100,150 3200,110 L3200,220 L0,220 Z"/>
+      </svg>
+      <svg class="wave-layer wave-front" viewBox="0 0 3200 220" preserveAspectRatio="none" aria-hidden="true">
+        <path d="M0,140 C100,195 300,195 400,140 C500,85 700,85 800,140 C900,195 1100,195 1200,140 C1300,85 1500,85 1600,140 C1700,195 1900,195 2000,140 C2100,85 2300,85 2400,140 C2500,195 2700,195 2800,140 C2900,85 3100,85 3200,140 L3200,220 L0,220 Z"/>
+      </svg>
+    </div>
     <div class="sky-grain"></div>
   </div>
 
@@ -95,96 +103,114 @@
         <input type="text" id="settingName" placeholder="Optional, used in the greeting">
       </label>
 
-      <label class="field">
+      <div class="field">
         <span>Sky</span>
-        <select id="settingSky">
-          <option value="auto">Auto — follow the time of day</option>
-          <option value="dawn">Dawn</option>
-          <option value="morning">Morning</option>
-          <option value="midday">Midday</option>
-          <option value="dusk">Dusk</option>
-          <option value="evening">Evening</option>
-          <option value="night">Night</option>
-        </select>
-      </label>
+        <div class="dropdown" id="settingSky"></div>
+      </div>
 
-
-      <label class="field">
+      <div class="field">
         <span>Clock format</span>
-        <select id="settingClock">
-          <option value="12">12-hour</option>
-          <option value="24">24-hour</option>
-        </select>
-      </label>
+        <div class="dropdown" id="settingClock"></div>
+      </div>
 
-      <label class="field">
+      <div class="field">
         <span>Search engine</span>
-        <select id="settingEngine">
-          <option value="google">Google</option>
-          <option value="duckduckgo">DuckDuckGo</option>
-          <option value="bing">Bing</option>
-          <option value="startpage">Startpage</option>
-        </select>
-      </label>
+        <div class="dropdown" id="settingEngine"></div>
+      </div>
 
-      <label class="field">
+      <div class="field">
         <span>Week starts on</span>
-        <select id="settingWeekStart">
-          <option value="0">Sunday</option>
-          <option value="1">Monday</option>
-        </select>
-      </label>
+        <div class="dropdown" id="settingWeekStart"></div>
+      </div>
 
-      <label class="field">
+      <div class="field slider-field">
         <span>Noise overlay</span>
-        <select id="settingGrain">
-          <option value="off">Off</option>
-          <option value="subtle">Subtle</option>
-          <option value="strong">Strong</option>
-        </select>
-      </label>
-
-      <div class="palette-editor" id="paletteEditor">
-        <div class="palette-head">
-          <div>
-            <span>Theme palette</span>
-            <div class="palette-description">Pick a preset or customize the core palette used across the UI.</div>
-          </div>
+        <div class="slider-row">
+          <input type="range" id="settingGrain" min="0" max="100" step="1" value="0" aria-label="Noise overlay intensity">
+          <span class="slider-value" id="settingGrainValue">0%</span>
         </div>
+      </div>
 
-        <div class="palette-preview">
-          <div class="preview-grid">
-            <div class="preview-dot large" id="previewDotLarge"></div>
-            <div style="flex:1">
-              <div class="preview-strip" id="previewStrip"></div>
-            </div>
-          </div>
+      <div class="field-row">
+        <div class="field-label">
+          <span class="title">Wave motion</span>
+          <span class="desc">A slow tide along the horizon</span>
         </div>
+        <label class="toggle-switch">
+          <input type="checkbox" id="settingWaveEnabled">
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
 
-        <div class="palette-presets" id="palettePresets"></div>
-
-        <div class="palette-grid">
-          <div class="field compact color-control">
-            <input type="color" id="paletteSurface" value="#ffffff">
-            <div class="hex-value">Surface</div>
-          </div>
-          <div class="field compact color-control">
-            <input type="color" id="paletteText" value="#F8F6F9">
-            <div class="hex-value">Text</div>
-          </div>
-          <div class="field compact color-control">
-            <input type="color" id="paletteAccent" value="#F7F1EA">
-            <div class="hex-value">Accent</div>
-          </div>
-          <div class="field compact color-control">
-            <input type="color" id="paletteAccentInk" value="#2b1a08">
-            <div class="hex-value">Accent ink</div>
-          </div>
+      <div class="field slider-field" id="waveIntensityField">
+        <span>Wave intensity</span>
+        <div class="slider-row">
+          <input type="range" id="settingWaveIntensity" min="0" max="100" step="1" value="45" aria-label="Wave motion intensity">
+          <span class="slider-value" id="settingWaveIntensityValue">45%</span>
         </div>
+      </div>
+
+      <div class="field">
+        <span>Theme</span>
+        <button type="button" class="theme-trigger" id="openThemeBtn" aria-haspopup="dialog">
+          <span class="theme-trigger-left">
+            <span class="preview-dot trigger" id="triggerPreviewDot"></span>
+            <span class="theme-trigger-label">
+              <span class="name" id="triggerPreviewName">Custom</span>
+              <span class="hint">Colors, presets &amp; contrast</span>
+            </span>
+          </span>
+          <svg class="dropdown-chevron" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
       </div>
 
       <div class="modal-actions">
         <button type="button" class="btn-primary" id="closeSettings">Done</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Theme modal -->
+  <div class="modal-overlay" id="themeModal">
+    <div class="modal" role="dialog" aria-labelledby="themeTitle">
+      <h2 id="themeTitle">Theme</h2>
+      <p class="palette-description">Pick a preset or customize the core palette used across the UI. Cards and panels automatically adjust their contrast to keep text readable, whichever text color you choose.</p>
+
+      <div class="palette-preview">
+        <div class="preview-grid">
+          <div class="preview-dot large" id="previewDotLarge"></div>
+          <div style="flex:1">
+            <div class="preview-strip" id="previewStrip"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="palette-section-label">Presets</div>
+      <div class="palette-presets" id="palettePresets"></div>
+
+      <div class="palette-section-label">Customize</div>
+      <div class="palette-grid">
+        <div class="color-control">
+          <button type="button" class="color-swatch-btn" id="paletteSurfaceBtn" aria-label="Surface color"></button>
+          <div class="hex-value">Surface</div>
+        </div>
+        <div class="color-control">
+          <button type="button" class="color-swatch-btn" id="paletteTextBtn" aria-label="Text color"></button>
+          <div class="hex-value">Text</div>
+        </div>
+        <div class="color-control">
+          <button type="button" class="color-swatch-btn" id="paletteAccentBtn" aria-label="Accent color"></button>
+          <div class="hex-value">Accent</div>
+        </div>
+        <div class="color-control">
+          <button type="button" class="color-swatch-btn" id="paletteAccentInkBtn" aria-label="Accent ink color"></button>
+          <div class="hex-value">Accent ink</div>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" class="btn-secondary" id="backToSettings">← Back</button>
+        <button type="button" class="btn-primary" id="closeTheme">Done</button>
       </div>
     </div>
   </div>
