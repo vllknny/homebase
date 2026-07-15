@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Homebase</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body data-sky="night">
+
+  <!-- Living sky background: two crossfading scenes -->
+  <div class="sky" aria-hidden="true">
+    <div class="sky-scene active" id="sceneA" data-sky="night">
+      <div class="blob b1"></div>
+      <div class="blob b2"></div>
+      <div class="blob b3"></div>
+    </div>
+    <div class="sky-scene" id="sceneB" data-sky="night">
+      <div class="blob b1"></div>
+      <div class="blob b2"></div>
+      <div class="blob b3"></div>
+    </div>
+    <div class="sky-grain"></div>
+  </div>
+
+  <button id="settingsBtn" class="icon-btn corner-btn" aria-label="Open settings" title="Settings">
+    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="3.2"/>
+      <path d="M12 1.5v3.4M12 19.1v3.4M22.5 12h-3.4M4.9 12H1.5M19.07 4.93l-2.4 2.4M7.33 16.67l-2.4 2.4M19.07 19.07l-2.4-2.4M7.33 7.33L4.93 4.93"/>
+    </svg>
+  </button>
+
+  <header class="hero">
+    <div class="clock" id="clock">--:--</div>
+    <div class="date" id="dateLine"></div>
+    <h1 class="greeting" id="greeting">Welcome</h1>
+    <form class="search-form" id="searchForm" autocomplete="off">
+      <svg class="search-icon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6.5"/><line x1="15.3" y1="15.3" x2="20.5" y2="20.5"/></svg>
+      <input type="text" id="searchInput" placeholder="Search the web, or type a URL…" aria-label="Search the web or enter a URL">
+    </form>
+  </header>
+
+  <main class="dashboard">
+
+    <section class="card card-links" aria-labelledby="linksHeading">
+      <div class="card-head">
+        <h2 id="linksHeading">Quick links</h2>
+      </div>
+      <div class="links-grid" id="linksGrid"></div>
+    </section>
+
+    <section class="card card-planner" aria-labelledby="plannerHeading">
+      <div class="card-head">
+        <h2 id="plannerHeading">Planner</h2>
+        <span class="badge" id="taskCount"></span>
+      </div>
+      <form class="inline-form" id="taskForm">
+        <input type="text" id="taskInput" placeholder="Add a task…" aria-label="Add a task">
+        <button type="submit" class="add-btn" aria-label="Add task">+</button>
+      </form>
+      <ul class="task-list" id="taskList"></ul>
+      <p class="empty-note" id="taskEmpty">Nothing on the list yet.</p>
+    </section>
+
+    <section class="card card-calendar" aria-labelledby="calendarHeading">
+      <div class="card-head calendar-head">
+        <button type="button" class="icon-btn small" id="prevMonth" aria-label="Previous month">‹</button>
+        <h2 id="calendarHeading"><span id="calendarTitle">Month Year</span></h2>
+        <button type="button" class="icon-btn small" id="nextMonth" aria-label="Next month">›</button>
+      </div>
+      <div class="weekday-row" id="weekdayRow"></div>
+      <div class="calendar-grid" id="calendarGrid"></div>
+    </section>
+
+    <section class="card card-notes" aria-labelledby="notesHeading">
+      <div class="card-head">
+        <h2 id="notesHeading">Notes</h2>
+        <span class="badge saved-badge" id="notesSaved"></span>
+      </div>
+      <textarea id="notesArea" placeholder="Jot something down — a thought, a reminder, anything."></textarea>
+    </section>
+
+  </main>
+
+  <footer class="foot-hint">Homebase · new tab, personalized</footer>
+
+  <!-- Settings modal -->
+  <div class="modal-overlay" id="settingsModal">
+    <div class="modal" role="dialog" aria-labelledby="settingsTitle">
+      <h2 id="settingsTitle">Settings</h2>
+
+      <label class="field">
+        <span>Your name</span>
+        <input type="text" id="settingName" placeholder="Optional, used in the greeting">
+      </label>
+
+      <label class="field">
+        <span>Sky</span>
+        <select id="settingSky">
+          <option value="auto">Auto — follow the time of day</option>
+          <option value="dawn">Dawn</option>
+          <option value="morning">Morning</option>
+          <option value="midday">Midday</option>
+          <option value="dusk">Dusk</option>
+          <option value="evening">Evening</option>
+          <option value="night">Night</option>
+        </select>
+      </label>
+
+      <label class="field">
+        <span>Clock format</span>
+        <select id="settingClock">
+          <option value="12">12-hour</option>
+          <option value="24">24-hour</option>
+        </select>
+      </label>
+
+      <label class="field">
+        <span>Search engine</span>
+        <select id="settingEngine">
+          <option value="google">Google</option>
+          <option value="duckduckgo">DuckDuckGo</option>
+          <option value="bing">Bing</option>
+          <option value="startpage">Startpage</option>
+        </select>
+      </label>
+
+      <label class="field">
+        <span>Week starts on</span>
+        <select id="settingWeekStart">
+          <option value="0">Sunday</option>
+          <option value="1">Monday</option>
+        </select>
+      </label>
+
+      <div class="modal-actions">
+        <button type="button" class="btn-primary" id="closeSettings">Done</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add link modal -->
+  <div class="modal-overlay" id="addLinkModal">
+    <div class="modal" role="dialog" aria-labelledby="addLinkTitle">
+      <h2 id="addLinkTitle">Add a quick link</h2>
+      <form id="addLinkForm">
+        <label class="field">
+          <span>Label</span>
+          <input type="text" id="linkLabel" placeholder="e.g. Gmail" required>
+        </label>
+        <label class="field">
+          <span>URL</span>
+          <input type="text" id="linkUrl" placeholder="e.g. mail.google.com" required>
+        </label>
+        <div class="modal-actions">
+          <button type="button" class="btn-secondary" id="cancelAddLink">Cancel</button>
+          <button type="submit" class="btn-primary">Add link</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Day detail modal (calendar) -->
+  <div class="modal-overlay" id="dayModal">
+    <div class="modal" role="dialog" aria-labelledby="dayModalTitle">
+      <h2 id="dayModalTitle">Date</h2>
+      <ul class="day-events" id="dayEventsList"></ul>
+      <p class="empty-note" id="dayEmptyNote">No plans yet for this day.</p>
+      <form id="dayEventForm">
+        <input type="text" id="dayEventInput" placeholder="Add an event…" aria-label="Add an event for this day">
+        <button type="submit" class="add-btn" aria-label="Add event">+</button>
+      </form>
+      <div class="modal-actions">
+        <button type="button" class="btn-secondary" id="closeDayModal">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/storage.js"></script>
+  <script src="js/sky.js"></script>
+  <script src="js/links.js"></script>
+  <script src="js/planner.js"></script>
+  <script src="js/calendar.js"></script>
+  <script src="js/notes.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
