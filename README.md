@@ -2,6 +2,8 @@
 
 Replaces your browser's new tab page with a personal homebase: includes some useful widgets + a pleasent Anthropic-like noise gradient look.
 
+![Example](example.png)
+
 Works in Chromium-based browsers (Manifest V3). 
 See the note at the bottom for Firefox.
 
