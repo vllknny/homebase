@@ -12,12 +12,40 @@ const Links = (() => {
   ];
 
   let links = [];
-  let grid, modal, form, labelInput, urlInput, cancelBtn;
+  let grid, modal, form, labelInput, urlInput, cancelBtn, addTile;
 
   function normalizeUrl(raw) {
     let url = raw.trim();
     if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
     return url;
+  }
+
+  function deriveLabel(rawUrl) {
+    const value = (rawUrl || '').trim();
+    if (!value) return 'Link';
+
+    try {
+      const hostname = new URL(normalizeUrl(value)).hostname.replace(/^www\./i, '').replace(/\.$/, '');
+      const parts = hostname.split('.').filter(Boolean);
+      if (!parts.length) return 'Link';
+      const withoutExtension = parts.slice(0, -1).join('.');
+      return withoutExtension || parts[0] || 'Link';
+    } catch (e) {
+      return value.replace(/^https?:\/\//i, '').replace(/^www\./i, '').split('/')[0] || 'Link';
+    }
+  }
+
+  function extractUrl(raw) {
+    const text = (raw || '').trim();
+    if (!text) return '';
+
+    const candidates = text.split(/\s+/).filter(Boolean);
+    for (const candidate of candidates) {
+      const cleaned = candidate.replace(/[),.;]+$/, '');
+      if (/^https?:\/\//i.test(cleaned)) return normalizeUrl(cleaned);
+      if (/^www\./i.test(cleaned)) return normalizeUrl(`https://${cleaned}`);
+    }
+    return '';
   }
 
   function domainOf(url) {
@@ -45,6 +73,10 @@ const Links = (() => {
       a.className = 'link-tile';
       a.href = link.url;
       a.title = link.url;
+      a.addEventListener('dragover', (e) => handleDragOver(e, a));
+      a.addEventListener('dragleave', (e) => handleDragLeave(e, a));
+      a.addEventListener('drop', (e) => handleDrop(e, a));
+      a.addEventListener('dragend', () => setDropTarget(false, a));
 
       const img = document.createElement('img');
       img.src = faviconUrl(link.url);
@@ -74,12 +106,16 @@ const Links = (() => {
       grid.appendChild(a);
     });
 
-    const addTile = document.createElement('button');
+    addTile = document.createElement('button');
     addTile.type = 'button';
     addTile.className = 'link-tile add-tile';
     addTile.setAttribute('aria-label', 'Add a quick link');
     addTile.innerHTML = `<span class="fallback-icon">+</span><span>Add</span>`;
     addTile.addEventListener('click', openModal);
+    addTile.addEventListener('dragover', (e) => handleDragOver(e, addTile));
+    addTile.addEventListener('dragleave', (e) => handleDragLeave(e, addTile));
+    addTile.addEventListener('drop', (e) => handleDrop(e, addTile));
+    addTile.addEventListener('dragend', () => setDropTarget(false, addTile));
     grid.appendChild(addTile);
   }
 
@@ -103,15 +139,55 @@ const Links = (() => {
     setTimeout(() => labelInput.focus(), 50);
   }
 
+  function addLinkFromUrl(rawUrl, labelOverride = '') {
+    const normalized = normalizeUrl(rawUrl);
+    const label = (labelOverride || deriveLabel(rawUrl)).trim() || deriveLabel(rawUrl);
+    links.push({ id: 'l' + Date.now(), label, url: normalized });
+    persist();
+    render();
+  }
+
+  function setDropTarget(active, target) {
+    grid.classList.toggle('drop-target', active);
+    if (target) target.classList.toggle('drop-target', active);
+  }
+
+  function isInsideDropZone(element, relatedTarget) {
+    return !!relatedTarget && (element === relatedTarget || element.contains(relatedTarget));
+  }
+
+  function handleDragOver(e, target = grid) {
+    const payload = e.dataTransfer && (e.dataTransfer.getData('text/uri-list') || e.dataTransfer.getData('text/plain'));
+    if (!payload) return;
+    e.preventDefault();
+    setDropTarget(true, target);
+  }
+
+  function handleDragLeave(e, target = grid) {
+    if (isInsideDropZone(target, e.relatedTarget) || isInsideDropZone(grid, e.relatedTarget)) return;
+    setDropTarget(false, target);
+  }
+
+  function handleDrop(e, target = grid) {
+    const payload = e.dataTransfer && (e.dataTransfer.getData('text/uri-list') || e.dataTransfer.getData('text/plain'));
+    if (!payload) return;
+    e.preventDefault();
+    setDropTarget(false, target);
+
+    const url = extractUrl(payload);
+    if (!url) return;
+    addLinkFromUrl(url);
+  }
+
   function closeModal() {
     modal.classList.remove('open');
   }
 
   function handleSubmit(e) {
     e.preventDefault();
-    const label = labelInput.value.trim();
     const rawUrl = urlInput.value.trim();
-    if (!label || !rawUrl) return;
+    const label = labelInput.value.trim() || deriveLabel(rawUrl);
+    if (!rawUrl || !label) return;
 
     links.push({
       id: 'l' + Date.now(),
@@ -142,6 +218,15 @@ const Links = (() => {
     form.addEventListener('submit', handleSubmit);
     cancelBtn.addEventListener('click', closeModal);
     modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
+    urlInput.addEventListener('input', () => {
+      if (!labelInput.value.trim() && urlInput.value.trim()) {
+        labelInput.value = deriveLabel(urlInput.value);
+      }
+    });
+    grid.addEventListener('dragover', (e) => handleDragOver(e, grid));
+    grid.addEventListener('dragleave', (e) => handleDragLeave(e, grid));
+    grid.addEventListener('drop', (e) => handleDrop(e, grid));
+    grid.addEventListener('dragend', () => setDropTarget(false, grid));
 
     render();
   }

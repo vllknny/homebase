@@ -4,7 +4,17 @@
  */
 (function () {
   const SETTINGS_KEY = 'homebase_settings';
-  const DEFAULT_SETTINGS = { name: '', sky: 'auto', clock: '12', engine: 'google', weekStart: '0' };
+  const DEFAULT_SETTINGS = {
+    name: '',
+    sky: 'auto',
+    clock: '12',
+    engine: 'google',
+    weekStart: '0',
+    palette: {
+      surface: '#FFFFFF',
+      text: '#F8F6F9',
+    },
+  };
 
   const SEARCH_ENGINES = {
     google: 'https://www.google.com/search?q=',
@@ -69,6 +79,37 @@
     }
   }
 
+  function hexToRgba(hex, alpha) {
+    const value = (hex || '#ffffff').trim();
+    const clean = value.replace('#', '');
+    const full = clean.length === 3 ? clean.split('').map((c) => c + c).join('') : clean;
+    const intValue = parseInt(full, 16);
+    if (Number.isNaN(intValue)) return `rgba(255,255,255,${alpha})`;
+    const r = (intValue >> 16) & 255;
+    const g = (intValue >> 8) & 255;
+    const b = intValue & 255;
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+  }
+
+  function applyPalette() {
+    const palette = settings.palette || DEFAULT_SETTINGS.palette;
+    const textColor = palette.text || DEFAULT_SETTINGS.palette.text;
+    const surfaceColor = palette.surface || DEFAULT_SETTINGS.palette.surface;
+    const accentColor = palette.accent || DEFAULT_SETTINGS.palette.accent;
+    const accentInkColor = palette.accentInk || DEFAULT_SETTINGS.palette.accentInk;
+
+    document.body.style.setProperty('--accent', accentColor);
+    document.body.style.setProperty('--accent-ink', accentInkColor);
+    document.body.style.setProperty('--text', textColor);
+    document.body.style.setProperty('--text-dim', hexToRgba(textColor, .94));
+    document.body.style.setProperty('--text-faint', hexToRgba(textColor, .78));
+    document.body.style.setProperty('--surface', hexToRgba(surfaceColor, .08));
+    document.body.style.setProperty('--surface-hover', hexToRgba(surfaceColor, .12));
+    document.body.style.setProperty('--surface-border', hexToRgba(surfaceColor, .18));
+    document.body.style.setProperty('--surface-strong', hexToRgba(surfaceColor, .16));
+    document.body.style.setProperty('--surface-muted', hexToRgba(surfaceColor, .72));
+  }
+
   async function persistSettings() {
     await Store.set(SETTINGS_KEY, settings);
   }
@@ -113,6 +154,7 @@
       persistSettings();
       Calendar.setWeekStart(settings.weekStart);
     });
+
   }
 
   function wireGlobalModalDismiss() {
@@ -146,6 +188,7 @@
     settings = stored ? { ...DEFAULT_SETTINGS, ...stored } : { ...DEFAULT_SETTINGS };
 
     populateSettingsForm();
+    applyPalette();
     updateClock();
     setInterval(updateClock, 10000);
 
