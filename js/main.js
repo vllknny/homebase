@@ -46,6 +46,7 @@
     { value: 'duckduckgo', label: 'DuckDuckGo' },
     { value: 'bing', label: 'Bing' },
     { value: 'startpage', label: 'Startpage' },
+    { value: 'brave', label: 'Brave' },
   ];
   const WEEK_START_OPTIONS = [
     { value: '0', label: 'Sunday' },
