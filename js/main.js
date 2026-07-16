@@ -83,6 +83,7 @@
   const ENGINE_OPTIONS = [
     { value: 'google', label: 'Google' },
     { value: 'duckduckgo', label: 'DuckDuckGo' },
+    { value: 'brave', label: 'Brave' },
     { value: 'bing', label: 'Bing' },
     { value: 'startpage', label: 'Startpage' },
   ];
@@ -401,7 +402,7 @@
       const url = /^https?:\/\//i.test(query) ? query : 'https://' + query;
       window.location.href = url;
     } else {
-      const base = SEARCH_ENGINES[settings.engine] || SEARCH_ENGINES.google;
+      const base = SEARCH_ENGINES[settings.engine] || ENGINESEARCH_S.google;
       window.location.href = base + encodeURIComponent(query);
     }
   }
