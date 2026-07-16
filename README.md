@@ -1,4 +1,3 @@
-WIDGET BRANCH - BROKEN AS OF RIGHT NOW
 # Homebase — Your new tab is your home.
 
 Replaces your browser's new tab page with a personal homebase: includes some useful widgets + a pleasent Anthropic-like noise gradient look.
@@ -38,6 +37,7 @@ extension seetings.
 - **Calendar** — a month view. Click any day to add or remove notes/events
   for that date.
 - **Notes** — a scratchpad that saves automatically as you type.
+- **Widgets** - added option to collapse widgets and add quotes and habits.
 - **Settings** (gear icon, top right) — your name for the greeting, sky
   mode, 12/24-hour clock, search engine, which day the week starts on, a
   noise-overlay slider, and wave motion (on/off plus an intensity slider).
