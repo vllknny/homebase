@@ -4,6 +4,7 @@
  */
 (function () {
   const SETTINGS_KEY = 'homebase_settings';
+  const WIDGET_IDS = ['links', 'planner', 'calendar', 'notes', 'quote', 'habits'];
   const DEFAULT_SETTINGS = {
     name: '',
     sky: 'auto',
@@ -17,6 +18,44 @@
       text: '#F8F6F9',
       accent: '#f7f1ea',
       accentInk: '#2b1a08',
+    },
+    widgets: {
+      order: WIDGET_IDS.slice(),
+      enabled: { links: true, planner: true, calendar: true, notes: true, quote: false, habits: false },
+      collapsed: { links: false, planner: false, calendar: false, notes: false, quote: false, habits: false },
+    },
+  };
+
+  const WIDGET_DEFS = {
+    links: {
+      title: 'Quick Links',
+      hint: 'Shortcuts to your favorite sites',
+      icon: '<circle cx="12" cy="12" r="9"/><path d="M9 12h6M12 9v6"/>',
+    },
+    planner: {
+      title: 'Planner',
+      hint: 'A simple task list',
+      icon: '<path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>',
+    },
+    calendar: {
+      title: 'Calendar',
+      hint: 'Month view with day notes',
+      icon: '<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>',
+    },
+    notes: {
+      title: 'Notes',
+      hint: 'One quick scratchpad',
+      icon: '<path d="M4 4h16v12H9l-5 5z"/>',
+    },
+    quote: {
+      title: 'Quote',
+      hint: 'A quote of the day',
+      icon: '<path d="M7 7h4v6H7a2 2 0 0 0 0 4"/><path d="M15 7h4v6h-4a2 2 0 0 0 0 4"/>',
+    },
+    habits: {
+      title: 'Habits',
+      hint: 'A daily habit checklist',
+      icon: '<path d="M9 11l3 3L22 4"/><path d="M12 2a10 10 0 1 0 9.17 6"/>',
     },
   };
 
@@ -46,7 +85,6 @@
     { value: 'duckduckgo', label: 'DuckDuckGo' },
     { value: 'bing', label: 'Bing' },
     { value: 'startpage', label: 'Startpage' },
-    { value: 'brave', label: 'Brave' },
   ];
   const WEEK_START_OPTIONS = [
     { value: '0', label: 'Sunday' },
@@ -58,6 +96,7 @@
   let clockEl, dateEl, greetingEl, searchForm, searchInput;
   let settingsBtn, settingsModal, closeSettingsBtn;
   let themeModal, openThemeBtn, closeThemeBtn, backToSettingsBtn;
+  let widgetsModal, openWidgetsBtn, closeWidgetsBtn, backToSettingsFromWidgetsBtn, widgetListEl, dashboardEl;
   let nameInput;
   let skyDropdown, clockDropdown, engineDropdown, weekStartDropdown;
   let grainInput, grainValueEl;
@@ -506,6 +545,7 @@
   }
 
   function openSettings() {
+    updateWidgetsTriggerSummary();
     settingsModal.classList.add('open');
   }
   function closeSettings() {
@@ -642,6 +682,9 @@
     themeModal.addEventListener('click', (e) => {
       if (e.target === themeModal) closeTheme();
     });
+    widgetsModal.addEventListener('click', (e) => {
+      if (e.target === widgetsModal) closeWidgets();
+    });
     document.addEventListener('keydown', (e) => {
       if (e.key !== 'Escape') return;
       closeColorPopover();
@@ -657,6 +700,7 @@
     greetingEl = document.getElementById('greeting');
     searchForm = document.getElementById('searchForm');
     searchInput = document.getElementById('searchInput');
+    dashboardEl = document.getElementById('dashboard');
 
     settingsBtn = document.getElementById('settingsBtn');
     settingsModal = document.getElementById('settingsModal');
@@ -665,6 +709,11 @@
     openThemeBtn = document.getElementById('openThemeBtn');
     closeThemeBtn = document.getElementById('closeTheme');
     backToSettingsBtn = document.getElementById('backToSettings');
+    widgetsModal = document.getElementById('widgetsModal');
+    openWidgetsBtn = document.getElementById('openWidgetsBtn');
+    closeWidgetsBtn = document.getElementById('closeWidgets');
+    backToSettingsFromWidgetsBtn = document.getElementById('backToSettingsFromWidgets');
+    widgetListEl = document.getElementById('widgetList');
 
     nameInput = document.getElementById('settingName');
     grainInput = document.getElementById('settingGrain');
@@ -684,7 +733,7 @@
     settings = stored ? { ...DEFAULT_SETTINGS, ...stored } : { ...DEFAULT_SETTINGS };
 
     // Migrate legacy settings shapes (grain used to be off/subtle/strong;
-    // wave motion didn't exist yet).
+    // wave motion and widget layout didn't exist yet).
     if (typeof settings.grain !== 'number') {
       const legacyGrain = { off: 0, subtle: 40, strong: 85 };
       settings.grain = legacyGrain[settings.grain] ?? 0;
@@ -694,6 +743,7 @@
     } else {
       settings.wave = { ...DEFAULT_SETTINGS.wave, ...settings.wave };
     }
+    normalizeWidgetSettings();
 
     wireSettingsInputs();
     populateSettingsForm();
@@ -702,12 +752,19 @@
     updatePalettePreview();
     applyGrainSetting();
     applyWaveSetting();
+    applyWidgetLayout();
+    wireCardCollapseButtons();
+    wireWidgetList();
+    updateWidgetsTriggerSummary();
     updateClock();
     setInterval(updateClock, 10000);
 
     searchForm.addEventListener('submit', handleSearch);
     settingsBtn.addEventListener('click', openSettings);
     closeSettingsBtn.addEventListener('click', closeSettings);
+    openWidgetsBtn.addEventListener('click', openWidgets);
+    closeWidgetsBtn.addEventListener('click', closeWidgets);
+    backToSettingsFromWidgetsBtn.addEventListener('click', backToSettingsFromWidgets);
     wireGlobalModalDismiss();
     searchInput.focus();
 
@@ -718,6 +775,8 @@
     await Planner.init();
     await Calendar.init(settings.weekStart);
     await Notes.init();
+    await Quote.init();
+    await Habits.init();
   }
 
   function applyGrainSetting() {
@@ -740,6 +799,200 @@
     document.body.style.setProperty('--wave-opacity', enabled ? opacity : '0');
     document.body.style.setProperty('--wave-speed-back', speedBack);
     document.body.style.setProperty('--wave-speed-front', speedFront);
+  }
+
+  /* ----------------------------------------------------------------
+     Widgets — dashboard cards can be reordered, hidden, or collapsed.
+     Every card always exists in the DOM (each module inits exactly
+     once); layout only ever touches CSS `order`/classes so nothing
+     needs to be re-initialized when the arrangement changes.
+     ---------------------------------------------------------------- */
+
+  function normalizeWidgetSettings() {
+    const w = settings.widgets && typeof settings.widgets === 'object' ? settings.widgets : {};
+    const order = Array.isArray(w.order) ? w.order.filter((id) => WIDGET_DEFS[id]) : [];
+    WIDGET_IDS.forEach((id) => { if (!order.includes(id)) order.push(id); });
+    const enabled = {};
+    const collapsed = {};
+    WIDGET_IDS.forEach((id) => {
+      enabled[id] = w.enabled && typeof w.enabled[id] === 'boolean' ? w.enabled[id] : DEFAULT_SETTINGS.widgets.enabled[id];
+      collapsed[id] = !!(w.collapsed && w.collapsed[id]);
+    });
+    settings.widgets = { order, enabled, collapsed };
+  }
+
+  function applyWidgetLayout() {
+    if (!dashboardEl) return;
+    const { order, enabled, collapsed } = settings.widgets;
+    order.forEach((id, index) => {
+      const card = dashboardEl.querySelector(`.card[data-widget="${id}"]`);
+      if (!card) return;
+      card.style.order = index;
+      card.classList.toggle('widget-hidden', !enabled[id]);
+      card.classList.toggle('collapsed', !!collapsed[id]);
+    });
+  }
+
+  function toggleWidgetCollapsed(id) {
+    settings.widgets.collapsed[id] = !settings.widgets.collapsed[id];
+    persistSettings();
+    applyWidgetLayout();
+  }
+
+  function wireCardCollapseButtons() {
+    if (!dashboardEl) return;
+    dashboardEl.addEventListener('click', (e) => {
+      const btn = e.target.closest('.card-collapse-btn');
+      if (!btn) return;
+      toggleWidgetCollapsed(btn.dataset.widget);
+    });
+  }
+
+  let widgetDragId = null;
+
+  function renderWidgetList() {
+    if (!widgetListEl) return;
+    const { order, enabled } = settings.widgets;
+    widgetListEl.innerHTML = '';
+
+    order.forEach((id, index) => {
+      const def = WIDGET_DEFS[id];
+      if (!def) return;
+      const row = document.createElement('div');
+      row.className = 'widget-row' + (enabled[id] ? '' : ' disabled');
+      row.draggable = true;
+      row.dataset.id = id;
+      row.innerHTML = `
+        <span class="widget-drag-handle" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="9" cy="6" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="9" cy="18" r="1"/><circle cx="15" cy="6" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="15" cy="18" r="1"/></svg>
+        </span>
+        <span class="widget-icon">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${def.icon}</svg>
+        </span>
+        <span class="widget-row-label">
+          <span class="name">${def.title}</span>
+          <span class="hint">${def.hint}</span>
+        </span>
+        <span class="widget-row-controls">
+          <button type="button" class="widget-reorder-btn" data-move="up" aria-label="Move ${def.title} up" ${index === 0 ? 'disabled' : ''}>
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+          </button>
+          <button type="button" class="widget-reorder-btn" data-move="down" aria-label="Move ${def.title} down" ${index === order.length - 1 ? 'disabled' : ''}>
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <label class="toggle-switch" style="margin-left:6px">
+            <input type="checkbox" data-toggle-enabled ${enabled[id] ? 'checked' : ''} aria-label="Show ${def.title}">
+            <span class="toggle-slider"></span>
+          </label>
+        </span>
+      `;
+      widgetListEl.appendChild(row);
+    });
+
+    updateWidgetsTriggerSummary();
+  }
+
+  function moveWidget(id, direction) {
+    const order = settings.widgets.order;
+    const from = order.indexOf(id);
+    const to = from + direction;
+    if (from < 0 || to < 0 || to >= order.length) return;
+    [order[from], order[to]] = [order[to], order[from]];
+    persistSettings();
+    applyWidgetLayout();
+    renderWidgetList();
+  }
+
+  function reorderWidgetTo(id, targetId) {
+    if (id === targetId) return;
+    const order = settings.widgets.order;
+    const from = order.indexOf(id);
+    const to = order.indexOf(targetId);
+    if (from < 0 || to < 0) return;
+    order.splice(from, 1);
+    order.splice(to, 0, id);
+    persistSettings();
+    applyWidgetLayout();
+    renderWidgetList();
+  }
+
+  function wireWidgetList() {
+    if (!widgetListEl) return;
+
+    widgetListEl.addEventListener('click', (e) => {
+      const moveBtn = e.target.closest('.widget-reorder-btn');
+      if (moveBtn) {
+        const row = moveBtn.closest('.widget-row');
+        moveWidget(row.dataset.id, moveBtn.dataset.move === 'up' ? -1 : 1);
+      }
+    });
+
+    widgetListEl.addEventListener('change', (e) => {
+      if (!e.target.matches('[data-toggle-enabled]')) return;
+      const row = e.target.closest('.widget-row');
+      const id = row.dataset.id;
+      settings.widgets.enabled[id] = e.target.checked;
+      persistSettings();
+      applyWidgetLayout();
+      renderWidgetList();
+    });
+
+    widgetListEl.addEventListener('dragstart', (e) => {
+      const row = e.target.closest('.widget-row');
+      if (!row) return;
+      widgetDragId = row.dataset.id;
+      row.classList.add('dragging');
+      e.dataTransfer.effectAllowed = 'move';
+      try { e.dataTransfer.setData('text/plain', widgetDragId); } catch (err) { /* Safari */ }
+    });
+    widgetListEl.addEventListener('dragend', (e) => {
+      const row = e.target.closest('.widget-row');
+      if (row) row.classList.remove('dragging');
+      widgetListEl.querySelectorAll('.widget-row.drag-over').forEach((r) => r.classList.remove('drag-over'));
+      widgetDragId = null;
+    });
+    widgetListEl.addEventListener('dragover', (e) => {
+      const row = e.target.closest('.widget-row');
+      if (!row || !widgetDragId || row.dataset.id === widgetDragId) return;
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'move';
+      widgetListEl.querySelectorAll('.widget-row.drag-over').forEach((r) => { if (r !== row) r.classList.remove('drag-over'); });
+      row.classList.add('drag-over');
+    });
+    widgetListEl.addEventListener('dragleave', (e) => {
+      const row = e.target.closest('.widget-row');
+      if (row) row.classList.remove('drag-over');
+    });
+    widgetListEl.addEventListener('drop', (e) => {
+      const row = e.target.closest('.widget-row');
+      if (!row || !widgetDragId) return;
+      e.preventDefault();
+      row.classList.remove('drag-over');
+      reorderWidgetTo(widgetDragId, row.dataset.id);
+    });
+  }
+
+  function updateWidgetsTriggerSummary() {
+    const nameEl = document.getElementById('widgetsTriggerName');
+    const hintEl = document.getElementById('widgetsTriggerHint');
+    if (!nameEl || !hintEl) return;
+    const total = settings.widgets.order.length;
+    const activeCount = settings.widgets.order.filter((id) => settings.widgets.enabled[id]).length;
+    nameEl.textContent = 'Manage widgets';
+    hintEl.textContent = `${activeCount} of ${total} shown`;
+  }
+
+  function openWidgets() {
+    closeSettings();
+    renderWidgetList();
+    widgetsModal.classList.add('open');
+  }
+  function closeWidgets() {
+    widgetsModal.classList.remove('open');
+  }
+  function backToSettingsFromWidgets() {
+    closeWidgets();
+    openSettings();
   }
 
   const PALETTE_PRESETS = [
