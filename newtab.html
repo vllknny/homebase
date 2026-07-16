@@ -49,47 +49,116 @@
     </form>
   </header>
 
-  <main class="dashboard">
+  <main class="dashboard" id="dashboard">
 
-    <section class="card card-links" aria-labelledby="linksHeading">
+    <section class="card card-links" data-widget="links" aria-labelledby="linksHeading">
       <div class="card-head">
         <h2 id="linksHeading">Quick links</h2>
+        <div class="card-head-actions">
+          <button type="button" class="card-collapse-btn" data-widget="links" aria-label="Collapse Quick links" title="Collapse">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+        </div>
       </div>
-      <div class="links-grid" id="linksGrid"></div>
+      <div class="card-body-wrap"><div class="card-body">
+        <div class="links-grid" id="linksGrid"></div>
+      </div></div>
     </section>
 
-    <section class="card card-planner" aria-labelledby="plannerHeading">
+    <section class="card card-planner" data-widget="planner" aria-labelledby="plannerHeading">
       <div class="card-head">
         <h2 id="plannerHeading">Planner</h2>
-        <span class="badge" id="taskCount"></span>
+        <div class="card-head-actions">
+          <span class="badge" id="taskCount"></span>
+          <button type="button" class="card-collapse-btn" data-widget="planner" aria-label="Collapse Planner" title="Collapse">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+        </div>
       </div>
-      <form class="inline-form" id="taskForm">
-        <input type="text" id="taskInput" placeholder="Add a task…" aria-label="Add a task">
-        <button type="submit" class="add-btn" aria-label="Add task">+</button>
-      </form>
-      <ul class="task-list" id="taskList"></ul>
-      <p class="empty-note" id="taskEmpty">Nothing on the list yet.</p>
+      <div class="card-body-wrap"><div class="card-body">
+        <form class="inline-form" id="taskForm">
+          <input type="text" id="taskInput" placeholder="Add a task…" aria-label="Add a task">
+          <button type="submit" class="add-btn" aria-label="Add task">+</button>
+        </form>
+        <ul class="task-list" id="taskList"></ul>
+        <p class="empty-note" id="taskEmpty">Nothing on the list yet.</p>
+      </div></div>
     </section>
 
-    <section class="card card-calendar" aria-labelledby="calendarHeading">
+    <section class="card card-calendar" data-widget="calendar" aria-labelledby="calendarHeading">
       <div class="card-head calendar-head">
-        <button type="button" class="icon-btn small" id="prevMonth" aria-label="Previous month">‹</button>
-        <h2 id="calendarHeading"><span id="calendarTitle">Month Year</span></h2>
-        <button type="button" class="icon-btn small" id="nextMonth" aria-label="Next month">›</button>
+        <div class="calendar-nav">
+          <button type="button" class="icon-btn small" id="prevMonth" aria-label="Previous month">‹</button>
+          <h2 id="calendarHeading"><span id="calendarTitle">Month Year</span></h2>
+          <button type="button" class="icon-btn small" id="nextMonth" aria-label="Next month">›</button>
+        </div>
+        <div class="card-head-actions">
+          <button type="button" class="card-collapse-btn" data-widget="calendar" aria-label="Collapse Calendar" title="Collapse">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+        </div>
       </div>
-      <div class="weekday-row" id="weekdayRow"></div>
-      <div class="calendar-grid" id="calendarGrid"></div>
+      <div class="card-body-wrap"><div class="card-body">
+        <div class="weekday-row" id="weekdayRow"></div>
+        <div class="calendar-grid" id="calendarGrid"></div>
+      </div></div>
     </section>
 
-    <section class="card card-notes" aria-labelledby="notesHeading">
+    <section class="card card-notes" data-widget="notes" aria-labelledby="notesHeading">
       <div class="card-head">
         <h2 id="notesHeading">Notes</h2>
-        <span class="badge saved-badge" id="notesSaved"></span>
+        <div class="card-head-actions">
+          <span class="badge saved-badge" id="notesSaved"></span>
+          <button type="button" class="card-collapse-btn" data-widget="notes" aria-label="Collapse Notes" title="Collapse">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+        </div>
       </div>
-      <textarea id="notesArea" placeholder="Jot something down — a thought, a reminder, anything."></textarea>
+      <div class="card-body-wrap"><div class="card-body">
+        <textarea id="notesArea" placeholder="Jot something down — a thought, a reminder, anything."></textarea>
+      </div></div>
+    </section>
+
+    <section class="card card-quote" data-widget="quote" aria-labelledby="quoteHeading">
+      <div class="card-head">
+        <h2 id="quoteHeading">Quote</h2>
+        <div class="card-head-actions">
+          <button type="button" class="card-collapse-btn" data-widget="quote" aria-label="Collapse Quote" title="Collapse">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+        </div>
+      </div>
+      <div class="card-body-wrap"><div class="card-body">
+        <div class="quote-body">
+          <p class="quote-text" id="quoteText">Loading…</p>
+          <span class="quote-author" id="quoteAuthor"></span>
+          <button type="button" class="btn-secondary small quote-refresh-btn" id="quoteRefresh">Another one</button>
+        </div>
+      </div></div>
+    </section>
+
+    <section class="card card-habits" data-widget="habits" aria-labelledby="habitsHeading">
+      <div class="card-head">
+        <h2 id="habitsHeading">Habits</h2>
+        <div class="card-head-actions">
+          <span class="habit-progress" id="habitProgress"></span>
+          <button type="button" class="card-collapse-btn" data-widget="habits" aria-label="Collapse Habits" title="Collapse">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+        </div>
+      </div>
+      <div class="card-body-wrap"><div class="card-body">
+        <form class="inline-form" id="habitForm">
+          <input type="text" id="habitInput" placeholder="Add a daily habit…" aria-label="Add a habit">
+          <button type="submit" class="add-btn" aria-label="Add habit">+</button>
+        </form>
+        <ul class="habit-list" id="habitList"></ul>
+        <p class="empty-note" id="habitEmpty">No habits yet — add one to track daily.</p>
+      </div></div>
     </section>
 
   </main>
+
 
   <footer class="foot-hint">Homebase</footer>
 
@@ -103,43 +172,46 @@
         <input type="text" id="settingName" placeholder="Optional, used in the greeting">
       </label>
 
-      <div class="field">
-        <span>Sky</span>
-        <div class="dropdown" id="settingSky"></div>
-      </div>
-
-      <div class="field">
-        <span>Clock format</span>
-        <div class="dropdown" id="settingClock"></div>
-      </div>
-
-      <div class="field">
-        <span>Search engine</span>
-        <div class="dropdown" id="settingEngine"></div>
-      </div>
-
-      <div class="field">
-        <span>Week starts on</span>
-        <div class="dropdown" id="settingWeekStart"></div>
-      </div>
-
-      <div class="field slider-field">
-        <span>Noise overlay</span>
-        <div class="slider-row">
-          <input type="range" id="settingGrain" min="0" max="100" step="1" value="0" aria-label="Noise overlay intensity">
-          <span class="slider-value" id="settingGrainValue">0%</span>
+      <div class="field-grid-2">
+        <div class="field">
+          <span>Sky</span>
+          <div class="dropdown" id="settingSky"></div>
+        </div>
+        <div class="field">
+          <span>Clock format</span>
+          <div class="dropdown" id="settingClock"></div>
         </div>
       </div>
 
-      <div class="field-row">
-        <div class="field-label">
-          <span class="title">Wave motion</span>
-          <span class="desc">A slow tide along the horizon</span>
+      <div class="field-grid-2">
+        <div class="field">
+          <span>Search engine</span>
+          <div class="dropdown" id="settingEngine"></div>
         </div>
-        <label class="toggle-switch">
-          <input type="checkbox" id="settingWaveEnabled">
-          <span class="toggle-slider"></span>
-        </label>
+        <div class="field">
+          <span>Week starts on</span>
+          <div class="dropdown" id="settingWeekStart"></div>
+        </div>
+      </div>
+
+      <div class="field-grid-2">
+        <div class="field slider-field">
+          <span>Noise overlay</span>
+          <div class="slider-row">
+            <input type="range" id="settingGrain" min="0" max="100" step="1" value="0" aria-label="Noise overlay intensity">
+            <span class="slider-value" id="settingGrainValue">0%</span>
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field-label">
+            <span class="title">Wave motion</span>
+            <span class="desc">A slow tide along the horizon</span>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="settingWaveEnabled">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
       </div>
 
       <div class="field slider-field" id="waveIntensityField">
@@ -150,22 +222,52 @@
         </div>
       </div>
 
-      <div class="field">
-        <span>Theme</span>
-        <button type="button" class="theme-trigger" id="openThemeBtn" aria-haspopup="dialog">
-          <span class="theme-trigger-left">
-            <span class="preview-dot trigger" id="triggerPreviewDot"></span>
-            <span class="theme-trigger-label">
-              <span class="name" id="triggerPreviewName">Custom</span>
-              <span class="hint">Colors, presets &amp; contrast</span>
+      <div class="field-grid-2">
+        <div class="field">
+          <span>Theme</span>
+          <button type="button" class="theme-trigger" id="openThemeBtn" aria-haspopup="dialog">
+            <span class="theme-trigger-left">
+              <span class="preview-dot trigger" id="triggerPreviewDot"></span>
+              <span class="theme-trigger-label">
+                <span class="name" id="triggerPreviewName">Custom</span>
+                <span class="hint">Colors, presets &amp; contrast</span>
+              </span>
             </span>
-          </span>
-          <svg class="dropdown-chevron" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
-        </button>
+            <svg class="dropdown-chevron" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+        </div>
+        <div class="field">
+          <span>Widgets</span>
+          <button type="button" class="theme-trigger" id="openWidgetsBtn" aria-haspopup="dialog">
+            <span class="theme-trigger-left">
+              <span class="preview-dot trigger" id="widgetsTriggerDot"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></span>
+              <span class="theme-trigger-label">
+                <span class="name" id="widgetsTriggerName">Manage widgets</span>
+                <span class="hint" id="widgetsTriggerHint">Reorder, show &amp; hide</span>
+              </span>
+            </span>
+            <svg class="dropdown-chevron" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+        </div>
       </div>
 
       <div class="modal-actions">
         <button type="button" class="btn-primary" id="closeSettings">Done</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Widgets modal -->
+  <div class="modal-overlay" id="widgetsModal">
+    <div class="modal" role="dialog" aria-labelledby="widgetsTitle">
+      <h2 id="widgetsTitle">Widgets</h2>
+      <p class="palette-description">Drag to reorder, or use the arrows. Turn a widget off to remove it from the dashboard — collapse one instead to keep it close but out of the way.</p>
+
+      <div class="widget-list" id="widgetList"></div>
+
+      <div class="modal-actions">
+        <button type="button" class="btn-secondary" id="backToSettingsFromWidgets">← Back</button>
+        <button type="button" class="btn-primary" id="closeWidgets">Done</button>
       </div>
     </div>
   </div>
@@ -217,7 +319,7 @@
 
   <!-- Add link modal -->
   <div class="modal-overlay" id="addLinkModal">
-    <div class="modal" role="dialog" aria-labelledby="addLinkTitle">
+    <div class="modal modal-narrow" role="dialog" aria-labelledby="addLinkTitle">
       <h2 id="addLinkTitle">Add a quick link</h2>
       <form id="addLinkForm">
         <label class="field">
@@ -238,7 +340,7 @@
 
   <!-- Day detail modal (calendar) -->
   <div class="modal-overlay" id="dayModal">
-    <div class="modal" role="dialog" aria-labelledby="dayModalTitle">
+    <div class="modal modal-narrow" role="dialog" aria-labelledby="dayModalTitle">
       <h2 id="dayModalTitle">Date</h2>
       <ul class="day-events" id="dayEventsList"></ul>
       <p class="empty-note" id="dayEmptyNote">No plans yet for this day.</p>
@@ -258,6 +360,8 @@
   <script src="js/planner.js"></script>
   <script src="js/calendar.js"></script>
   <script src="js/notes.js"></script>
+  <script src="js/quote.js"></script>
+  <script src="js/habits.js"></script>
   <script src="js/main.js"></script>
 </body>
 </html>
