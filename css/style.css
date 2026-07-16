@@ -393,8 +393,11 @@ a { color: inherit; }
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 10px;
   margin-bottom: 16px;
 }
+.card-head-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+.calendar-nav { display: flex; align-items: center; justify-content: space-between; flex: 1; gap: 8px; min-width: 0; }
 .card h2 {
   font-size: .72rem;
   letter-spacing: .14em;
@@ -405,6 +408,41 @@ a { color: inherit; }
 .badge { font-size: .72rem; color: var(--text-faint); font-weight: 600; }
 .saved-badge { opacity: 0; transition: opacity .3s ease; }
 .saved-badge.show { opacity: 1; }
+
+.card-collapse-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px; height: 26px;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  color: var(--text-faint);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background .15s ease, color .15s ease;
+}
+.card-collapse-btn:hover { background: var(--panel-hover); color: var(--text); }
+.card-collapse-btn svg { transition: transform .25s cubic-bezier(.22, 1, .36, 1); }
+.card.collapsed .card-collapse-btn svg { transform: rotate(-90deg); }
+
+.card-body-wrap {
+  display: grid;
+  grid-template-rows: 1fr;
+  flex: 1;
+  min-height: 0;
+  transition: grid-template-rows .32s cubic-bezier(.22, 1, .36, 1);
+}
+.card.collapsed .card-body-wrap { grid-template-rows: 0fr; }
+.card-body {
+  overflow: hidden;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+.card.collapsed { min-height: 0; padding-bottom: 22px; }
+.card.widget-hidden { display: none; }
 
 .empty-note {
   font-size: .82rem;
@@ -602,6 +640,37 @@ a { color: inherit; }
 .card-notes textarea::placeholder { color: var(--text-faint); }
 
 /* ============================================================
+   QUOTE
+   ============================================================ */
+
+.quote-body { flex: 1; display: flex; flex-direction: column; justify-content: center; gap: 16px; }
+.quote-text {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 400;
+  font-size: 1.08rem;
+  line-height: 1.55;
+  color: var(--text);
+}
+.quote-text::before { content: "“"; }
+.quote-text::after { content: "”"; }
+.quote-author {
+  font-size: .74rem;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  color: var(--text-faint);
+  font-weight: 700;
+}
+.quote-refresh-btn { align-self: flex-start; }
+
+/* ============================================================
+   HABITS
+   ============================================================ */
+
+.habit-progress { font-size: .72rem; color: var(--text-faint); font-weight: 600; font-variant-numeric: tabular-nums; }
+.habit-list { display: flex; flex-direction: column; gap: 1px; overflow-y: auto; flex: 1; max-height: 220px; }
+
+/* ============================================================
    MODALS
    ============================================================ */
 
@@ -623,8 +692,8 @@ a { color: inherit; }
   border: 1px solid var(--panel-border);
   border-radius: var(--radius-lg);
   padding: 28px 32px 30px;
-  width: min(780px, 96vw);
-  max-width: 780px;
+  width: min(920px, 96vw);
+  max-width: 920px;
   max-height: 92vh;
   overflow-y: auto;
   box-shadow: 0 18px 44px rgba(0, 0, 0, .42);
@@ -634,6 +703,7 @@ a { color: inherit; }
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
 }
+.modal.modal-narrow { width: min(560px, 96vw); max-width: 560px; }
 .modal-overlay.open .modal { transform: translateY(0) scale(1); opacity: 1; }
 
 .modal h2 {
@@ -646,6 +716,19 @@ a { color: inherit; }
 
 .field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
 .field span { font-size: .68rem; text-transform: uppercase; letter-spacing: .08em; font-weight: 700; color: var(--text-faint); }
+
+.field-grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px 20px;
+  margin-bottom: 16px;
+}
+.field-grid-2 .field,
+.field-grid-2 .field-row { margin-bottom: 0; }
+@media (max-width: 640px) {
+  .field-grid-2 { grid-template-columns: 1fr; }
+}
+
 .field input {
   padding: 10px 12px;
   border-radius: 999px;
@@ -839,6 +922,61 @@ a { color: inherit; }
 .theme-trigger-label .name { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .theme-trigger-label .hint { font-size: .74rem; color: var(--text-faint); }
 .theme-trigger .dropdown-chevron { transform: rotate(-90deg); opacity: .6; }
+
+/* --- widget manager list (reorderable, in the Widgets modal) --- */
+
+.widget-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 8px; }
+.widget-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: var(--panel-input-bg);
+  border: 1px solid var(--panel-border);
+  transition: background .15s ease, border-color .15s ease, opacity .2s ease, box-shadow .15s ease;
+}
+.widget-row.dragging { opacity: .4; }
+.widget-row.drag-over { border-color: var(--accent); box-shadow: 0 0 0 2px var(--panel-hover); }
+.widget-row.disabled { opacity: .55; }
+.widget-drag-handle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px; height: 22px;
+  color: var(--text-faint);
+  cursor: grab;
+  flex-shrink: 0;
+  touch-action: none;
+}
+.widget-drag-handle:active { cursor: grabbing; }
+.widget-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px; height: 34px;
+  border-radius: 50%;
+  background: var(--panel-hover);
+  color: var(--text-dim);
+  flex-shrink: 0;
+}
+.widget-row-label { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+.widget-row-label .name { font-size: .88rem; font-weight: 600; color: var(--text); }
+.widget-row-label .hint { font-size: .74rem; color: var(--text-faint); }
+.widget-row-controls { display: flex; align-items: center; gap: 4px; flex-shrink: 0; }
+.widget-reorder-btn {
+  display: flex; align-items: center; justify-content: center;
+  width: 26px; height: 26px;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  color: var(--text-faint);
+  cursor: pointer;
+  transition: background .15s ease, color .15s ease;
+}
+.widget-reorder-btn:hover:not(:disabled) { background: var(--panel-hover); color: var(--text); }
+.widget-reorder-btn:disabled { opacity: .3; cursor: default; }
+
 
 /* --- theme modal contents --- */
 
@@ -1134,4 +1272,3 @@ a { color: inherit; }
 @media (prefers-reduced-motion: reduce) {
   .grain::after { filter: none; }
 }
-

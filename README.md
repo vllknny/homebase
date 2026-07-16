@@ -1,3 +1,4 @@
+WIDGET BRANCH - BROKEN AS OF RIGHT NOW
 # Homebase — Your new tab is your home.
 
 Replaces your browser's new tab page with a personal homebase: includes some useful widgets + a pleasent Anthropic-like noise gradient look.
