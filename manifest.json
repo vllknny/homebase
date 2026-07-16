@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Homebase — New Tab Dashboard",
   "short_name": "Homebase",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Replace new tab with your homebase.",
   "chrome_url_overrides": {
     "newtab": "newtab.html"
