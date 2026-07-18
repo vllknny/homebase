@@ -402,7 +402,7 @@
       const url = /^https?:\/\//i.test(query) ? query : 'https://' + query;
       window.location.href = url;
     } else {
-      const base = SEARCH_ENGINES[settings.engine] || ENGINESEARCH_S.google;
+      const base = SEARCH_ENGINES[settings.engine] || SEARCH_ENGINES.google;
       window.location.href = base + encodeURIComponent(query);
     }
   }
@@ -822,6 +822,33 @@
     settings.widgets = { order, enabled, collapsed };
   }
 
+  function setCardCollapsed(card, collapsed, animate) {
+    const wrap = card.querySelector('.card-body-wrap');
+    card.classList.toggle('collapsed', collapsed);
+    if (!wrap) return;
+
+    if (!animate) {
+      wrap.style.maxHeight = collapsed ? '0px' : 'none';
+      return;
+    }
+
+    if (collapsed) {
+      wrap.style.maxHeight = wrap.scrollHeight + 'px';
+      // eslint-disable-next-line no-unused-expressions
+      wrap.offsetHeight; // force reflow so the browser sees the starting height before we animate
+      wrap.style.maxHeight = '0px';
+    } else {
+      const target = wrap.scrollHeight;
+      wrap.style.maxHeight = target + 'px';
+      const onEnd = (e) => {
+        if (e.propertyName !== 'max-height') return;
+        wrap.style.maxHeight = 'none';
+        wrap.removeEventListener('transitionend', onEnd);
+      };
+      wrap.addEventListener('transitionend', onEnd);
+    }
+  }
+
   function applyWidgetLayout() {
     if (!dashboardEl) return;
     const { order, enabled, collapsed } = settings.widgets;
@@ -830,14 +857,16 @@
       if (!card) return;
       card.style.order = index;
       card.classList.toggle('widget-hidden', !enabled[id]);
-      card.classList.toggle('collapsed', !!collapsed[id]);
+      setCardCollapsed(card, !!collapsed[id], false);
     });
   }
 
   function toggleWidgetCollapsed(id) {
-    settings.widgets.collapsed[id] = !settings.widgets.collapsed[id];
+    const collapsed = !settings.widgets.collapsed[id];
+    settings.widgets.collapsed[id] = collapsed;
     persistSettings();
-    applyWidgetLayout();
+    const card = dashboardEl.querySelector(`.card[data-widget="${id}"]`);
+    if (card) setCardCollapsed(card, collapsed, true);
   }
 
   function wireCardCollapseButtons() {
